@@ -1,6 +1,12 @@
 #include "shell.h"
 
-void ts_print(const char *message)
+void ts_print(const char *format, ...)
 {
-	write(STDOUT_FILENO, message, strlen(message));
+	va_list args;
+	va_start(args, format);
+
+	vprintf(format, args);
+
+	va_end(args);
 }
+
