@@ -1,12 +1,9 @@
 #include "shell.h"
 
-void ts_print(const char *format, ...)
+
+void ts_print(const char *message)
 {
-	va_list args;
-	va_start(args, format);
-
-	vprintf(format, args);
-
-	va_end(args);
+    vprintf(message, NULL);
 }
+
 
