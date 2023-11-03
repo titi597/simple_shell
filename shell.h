@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <string.h>
 
-void ts_print(const char *message);
+int main(int ac, char **argv);
+void execmd(char **argv);
 
 #endif
