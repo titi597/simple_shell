@@ -1,80 +1,93 @@
 #include "shell.h"
 
+static int running = 1;
+
+void sigint_handler(int signum)
+{
+	if (signum == SIGINT)
+	{
+		/* Handle Ctrl+C here (e.g., print a message) */
+		running = 0; /* Set the flag to exit the shell */
+	}
+}
+
+void cleanup(char *lineptr, char *lineptr_copy, char **argv)
+{
+	int i;
+
+	if (lineptr)
+	{
+		free(lineptr);
+	}
+	if (lineptr_copy)
+	{
+		free(lineptr_copy);
+	}
+	if (argv)
+	{
+		for (i = 0; argv[i]; i++)
+		{
+			free(argv[i]);
+		}
+		free(argv);
+	}
+}
+void process_input(char *lineptr)
+{
+	char *delim = "\n";
+	char *token = strtok(lineptr, delim);
+
+	while (token != NULL)
+	{
+		char *command = strtok(token, "\t\n");
+
+		if (command != NULL)
+		{
+			char *argv[2];
+
+			argv[0] = command;
+			argv[1] = NULL;
+			execmd(argv);
+		}
+		token = strtok(NULL, delim);
+	}
+}
+static int is_running(void)
+{
+	return (running);
+}
 int main(int ac, char **argv)
 {
+	(void)ac, (void)argv;
 
-    size_t n = 0;
-    ssize_t nchars_read;
-    char *prompt = "(ts_shell) $ ";
-    char *lineptr = NULL, *lineptr_copy = NULL;
-    const char *delim = "\n";
-    int num_tokens = 0;
-    char *token;
-    int i;
+	signal(SIGINT, sigint_handler);
 
-    (void)ac;
-   
-    while (1) {
-        printf("%s", prompt);
+	while (is_running())
+	{
+		size_t n = 0;
+		ssize_t nchars_read;
+		char *lineptr = NULL, *lineptr_copy = NULL;
 
-        nchars_read = getline(&lineptr, &n, stdin);
+		printf("(ts_shell) $ ");
 
-        lineptr_copy = malloc(sizeof(char) * nchars_read);
-        if (lineptr_copy == NULL){
-            perror("t_sh: memory alloction error");
-            return (-1);
-        }
+		nchars_read = getline(&lineptr, &n, stdin);
 
-        /* copy lineptr to lineptr_copy */
-        strcpy(lineptr_copy, lineptr);
+		if (nchars_read == -1)
+		{
+			printf("\n");
+			return (-1);
+		}
+		lineptr_copy = malloc(sizeof(char) * nchars_read);
+		if (lineptr_copy == NULL)
+		{
+			perror("tsh: memory allocation error");
+			return (-1);
+		}
+		strcpy(lineptr_copy, lineptr);
+		process_input(lineptr_copy);
 
-
-        if (nchars_read == -1) {
-            printf("Exiting shell...\n");
-            return (-1);
-        }
-
-        if (lineptr[0] != '\0' && lineptr[0] != '\n') {
-            printf("%s", lineptr);
-            /* Process the user input here (e.g., parse and execute commands). */
-        }
-
-        
-         /********** split the string (lineptr) into an array of words ********/
-        /* calculate the total number of tokens */
-
-        token = strtok(lineptr, delim);
-
-        while (token != NULL){
-            num_tokens++;
-            token = strtok(NULL, delim);
-        }
-        num_tokens++;
-
-        /* Allocate space to hold the array of strings */
-        argv = malloc(sizeof(char *) * num_tokens);
-
-        /* Store each token in the argv array */
-        token = strtok(lineptr_copy, delim);
-
-        for (i = 0; token != NULL; i++){
-            argv[i] = malloc(sizeof(char) * strlen(token));
-            strcpy(argv[i], token);
-
-            token = strtok(NULL, delim);
-        }
-        argv[i] = NULL;
-
-        execmd(argv);
-
-
-        /* free up allocated memory */
-        free(lineptr);
-        lineptr = NULL;
-        free(lineptr_copy);
-        free(argv);
-        
-    }
-
-    return (0);
+		cleanup(lineptr, lineptr_copy, NULL);
+	}
+	return (0);
 }
+
