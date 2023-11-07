@@ -9,11 +9,13 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 int main(int ac, char **argv);
 void execmd(char **argv);
 void process_input(char *lineptr);
 void cleanup(char *lineptr, char *lineptr_copy, char **argv);
 void sigint_handler(int signum);
+char *get_location(char *command);
 
 #endif

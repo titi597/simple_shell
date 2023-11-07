@@ -2,40 +2,27 @@
 
 void execmd(char **argv)
 {
-	pid_t pid;
+	char *command = NULL, *actual_command = NULL;
 
-	if (!argv || !argv[0])
+	if (argv && argv[0])
 	{
-		return; /* Do nothing if there's no command. */
-	}
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("Fork error");
-	}
-	else if (pid == 0)
-	{
-		/* This code will be executed in the child process. */
-		if (execve(argv[0], argv, NULL) == -1)
+		/* get the command */
+		command = argv[0];
+
+		/* generate the path to this command before passing it to execve */
+		actual_command = get_location(command);
+
+		if (actual_command == NULL)
 		{
 			perror("./hsh");
+			return;
+		}
+		/* This code will be executed in the child process. */
+		if (execve(actual_command, argv, NULL) == -1)
+		{
+			perror("Error");
 			exit(EXIT_FAILURE);
 		}
 	}
-	else
-	{
-		/* This code will be executed in the parent process. */
-		int status;
-
-		if (waitpid(pid, &status, 0) == -1)
-		{
-			perror("Waitpid error");
-		}
-		else if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-		{
-
-		}
-	}
 }
-
 
