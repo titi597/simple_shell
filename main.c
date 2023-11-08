@@ -9,7 +9,7 @@ int main(int ac, char **argv)
         const char *delim = " \n";
         int num_tokens = 0;
         char *token;
-        int i;
+        int i, j;
 
         /* declaring void variables */
         (void)ac;
@@ -23,18 +23,20 @@ int main(int ac, char **argv)
                 if (nchars_read == -1)
                 {
                         printf("Exiting shell....\n");
-                        return (-1);
+						free(lineptr);
+                        exit(-1);
                 }
                 /* allocate space for a copy of the lineptr */
                 lineptr_copy = malloc(sizeof(char) * nchars_read);
                 if (lineptr_copy == NULL)
                 {
                         perror("tsh: memory allocation error");
-                        return (-1);
+						free(lineptr);
+                        exit(-1);
                 }
                 /* copy lineptr to lineptr_copy */
                 strcpy(lineptr_copy, lineptr);
-strcpy(lineptr_copy, lineptr);
+				
                 /********** split the string (lineptr) into an array of words ********/
                 /* calculate the total number of tokens */
                 token = strtok(lineptr, delim);
@@ -60,9 +62,16 @@ strcpy(lineptr_copy, lineptr);
                 argv[i] = NULL;
                 /* execute the command */
                 execmd(argv);
+
+				for(j = 0; j < i; j++)
+				{
+					free(argv[j]);
+				}
+				free(argv);
+				free(lineptr_copy);
+				
         }
         /* free up allocated memory */
-        free(lineptr_copy);
         free(lineptr);
         return (0);
 }
