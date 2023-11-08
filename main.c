@@ -22,8 +22,8 @@ int main(int ac, char **argv)
                 /* check if the getline function failed or reached EOF or user use CTRL + D */
                 if (nchars_read == -1)
                 {
-                        printf("Exiting shell....\n");
-						free(lineptr);
+                        printf("\n");
+			free(lineptr);
                         exit(-1);
                 }
                 /* allocate space for a copy of the lineptr */
@@ -31,7 +31,7 @@ int main(int ac, char **argv)
                 if (lineptr_copy == NULL)
                 {
                         perror("tsh: memory allocation error");
-						free(lineptr);
+			free(lineptr);
                         exit(-1);
                 }
                 /* copy lineptr to lineptr_copy */
@@ -63,15 +63,15 @@ int main(int ac, char **argv)
                 /* execute the command */
                 execmd(argv);
 
-				for(j = 0; j < i; j++)
-				{
-					free(argv[j]);
-				}
-				free(argv);
-				free(lineptr_copy);
-				
-        }
+		for(j = 0; j < i; j++)
+		{
+			free(argv[j]);
+		}
+		free(argv);
+		free(lineptr_copy);
+	}
         /* free up allocated memory */
         free(lineptr);
         return (0);
 }
+
