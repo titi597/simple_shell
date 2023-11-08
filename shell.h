@@ -11,6 +11,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+extern char **environ;
+
 int main(int ac, char **argv);
 void execmd(char **argv);
 void process_input(char *lineptr);

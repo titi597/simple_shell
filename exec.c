@@ -15,6 +15,17 @@ void execmd(char **argv)
 		{
 			exit(0);
 		}
+		if (strcmp(command, "env") == 0)
+		{
+			char **env = environ;
+
+			while (*env)
+			{
+				printf("%s\n", *env);
+				env++;
+			}
+			return;
+		}
 
 		/* generate the path to this command before passing it to execve */
 		actual_command = get_location(command);
