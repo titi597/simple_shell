@@ -1,4 +1,5 @@
 #include "shell.h"
+#include "env_command.h"
 
 int main(int ac, char **argv)
 {
@@ -9,10 +10,11 @@ int main(int ac, char **argv)
         const char *delim = " \n";
         int num_tokens = 0;
         char *token;
+	char **tokens;
         int i, j;
 
         /* declaring void variables */
-        (void)ac;
+        (void)ac, (void)argv;
 
         /* Create a loop for the shell's prompt */
         while (1)
@@ -48,26 +50,49 @@ int main(int ac, char **argv)
                 }
                 num_tokens++;
                 /* Allocate space to hold the array of strings */
-                argv = malloc(sizeof(char *) * num_tokens);
+		tokens = (char **)malloc(sizeof(char *) * num_tokens);
                 /* Store each token in the argv array */
                 token = strtok(lineptr_copy, delim);
 
                 for (i = 0; token != NULL; i++)
                 {
-                        argv[i] = malloc(sizeof(char) * strlen(token));
-                        strcpy(argv[i], token);
+                        tokens[i] = malloc(sizeof(char) * strlen(token));
+                        strcpy(tokens[i], token);
 
                         token = strtok(NULL, delim);
                 }
-                argv[i] = NULL;
-                /* execute the command */
-                execmd(argv);
+                tokens[i] = NULL;
 
-		for(j = 0; j < i; j++)
+		if (tokens != NULL && tokens[0] != NULL)
 		{
-			free(argv[j]);
+			if (strcmp(tokens[0], "setenv") == 0)
+			{
+				int result = execute_setenv(tokens);
+				if (result != 0)
+				{
+					/* Handle failure */
+				}
+			}
+			else if (strcmp(tokens[0], "unsetenv") == 0)
+			{
+				int result = execute_unsetenv(tokens);
+
+				if (result != 0)
+				{
+					/* Handle failure */
+				}
+			}
+			else
+			{
+				/* execute the command */
+				execmd(tokens);
+			}
+			for(j = 0; j < i; j++)
+			{
+				free(tokens[j]);
+			}
+			free(tokens);
 		}
-		free(argv);
 		free(lineptr_copy);
 	}
         /* free up allocated memory */

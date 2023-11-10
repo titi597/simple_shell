@@ -19,5 +19,6 @@ void process_input(char *lineptr);
 void cleanup(char *lineptr, char *lineptr_copy, char **argv);
 void sigint_handler(int signum);
 char *get_location(char *command);
+ssize_t custom_getline(char **lineptr, size_t *n, FILE *stream);
 
 #endif

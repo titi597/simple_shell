@@ -13,7 +13,13 @@ void execmd(char **argv)
 
 		if (strcmp(command, "exit") == 0)
 		{
-			exit(0);
+			int exit_status = 0;
+
+			if (argv[1])
+			{
+				exit_status = atoi(argv[1]);
+			}
+			exit(exit_status);
 		}
 		if (strcmp(command, "env") == 0)
 		{
