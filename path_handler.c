@@ -1,58 +1,132 @@
+#include <stdarg.h>
 #include "shell.h"
 
+/**
+ * get_location - Find the full path of a command by
+ * searching the PATH variable.
+ * @command: The command to search for.
+ *
+ * Return: The full path of the command if found, otherwise NULL.
+ */
 char *get_location(char *command)
 {
-	char *path, *path_copy, *path_token, *file_path;
-	int command_length, directory_length;
 	struct stat buffer;
 
-	path = getenv("PATH");
-
-	if (path)
+	if (command[0] == '/')
 	{
-		/* Duplicate the path string -> remember to free up memory for this because strdup allocates memory that needs to be freed*/ 
-		path_copy = strdup(path);
-		/* Get length of the command that was passed */
-		command_length = strlen(command);
-		/* Let's break down the path variable and get all the directories available*/
-		path_token = strtok(path_copy, ":");
-
-		while(path_token != NULL)
-		{
-			/* Get the length of the directory*/
-			directory_length = strlen(path_token);
-			/* allocate memory for storing the command name together with the directory name */
-			file_path = malloc(command_length + directory_length + 2); /* NB: we added 2 for the slash and null character we will introduce in the full command */
-			/* to build the path for the command, let's copy the directory path and concatenate the command to it */
-			strcpy(file_path, path_token);
-			strcat(file_path, "/");
-			strcat(file_path, command);
-			strcat(file_path, "\0");
-
-			/* let's test if this file path actually exists and return it if it does, otherwise try the next directory */
-			if (stat(file_path, &buffer) == 0)
-			{
-				/* return value of 0 means success implying that the file_path is valid*/
-
-				/* free up allocated memory before returning your file_path */
-				free(path_copy);
-				return (file_path);
-			}
-			else
-			{
-				/* free up the file_path memory so we can check for another path*/
-				free(file_path);
-				path_token = strtok(NULL, ":");
-			}
-		}
-		/* if we don't get any file_path that exists for the command, we return NULL but we need to free up memory for path_copy */
-		free(path_copy);
-		/* before we exit without luck, let's see if the command itself is a file_path that exists */
 		if (stat(command, &buffer) == 0)
 		{
-			return (command);
+			return (strdup(command));
 		}
-		return (NULL);
+	}
+	else
+	{
+		char *path = getenv("PATH");
+
+		if (path)
+		{
+			char *path_copy = strdup(path);
+			char *path_token = strtok(path_copy, ":");
+
+			while (path_token != NULL)
+			{
+				char *file_path = malloc(strlen(path_token) + 1 + strlen(command) + 1);
+
+				sprintf(file_path, "%s/%s", path_token, command);
+
+				if (stat(file_path, &buffer) == 0)
+				{
+					free(path_copy);
+					return (file_path);
+				}
+				else
+				{
+					free(file_path);
+					path_token = strtok(NULL, ":");
+				}
+			}
+			free(path_copy);
+		}
 	}
 	return (NULL);
 }
+/**
+ * search_in_path - Search for a command in each directory
+ * specified in the PATH variable.
+ * @command: The command to search for.
+ * @path_copy: Copy of the PATH variable.
+ *
+ * Return: The full path of the command if found, otherwise NULL.
+ */
+char *search_in_path(char *command, char *path_copy)
+{
+	char *path_token = strtok(path_copy, ":");
+
+	while (path_token)
+	{
+		char *file_path = build_file_path(path_token, command);
+
+		if (file_exists(file_path))
+		{
+			return (file_path);
+		}
+		fprintf(stderr, "File not found: %s\n", file_path);
+		free(file_path);
+		path_token = strtok(NULL, ":");
+	}
+	fprintf(stderr, "Command not found in PATH\n");
+	return (NULL);
+}
+
+/**
+ * search_in_current_directory - Search for a command in the current directory.
+ * @command: The command to search for.
+ *
+ * Return: The full path of the command if found, otherwise NULL.
+ */
+char *search_in_current_directory(char *command)
+{
+	char *file_path = build_file_path(".", command);
+
+	if (file_exists(file_path))
+	{
+		return (file_path);
+	}
+	free(file_path);
+	return (NULL);
+}
+
+/**
+ * build_file_path - Build the full path for a command in a given directory.
+ * @directory: The directory to search in.
+ * @command: The command to search for.
+ *
+ * Return: The full path of the command.
+ */
+char *build_file_path(char *directory, char *command)
+{
+	char *file_path;
+	int directory_length = strlen(directory);
+	int command_length = strlen(command);
+
+	file_path = malloc(directory_length + command_length + 2);
+	strcpy(file_path, directory);
+	strcat(file_path, "/");
+	strcat(file_path, command);
+	strcat(file_path, "\0");
+
+	return (file_path);
+}
+/**
+ * file_exists - Check if a file exists.
+ * @file_path: The path of the file to check.
+ *
+ * Return: 1 if the file exists, 0 otherwise.
+ */
+int file_exists(char *file_path)
+{
+	struct stat buffer;
+
+	return (stat(file_path, &buffer) == 0);
+}
+

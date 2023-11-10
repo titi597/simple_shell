@@ -69,6 +69,7 @@ void execmd(char **argv)
 {
 	char *command = NULL, *actual_command = NULL;
 
+
 	if (argv && argv[0])
 	{
 		/* get the command */
@@ -81,11 +82,6 @@ void execmd(char **argv)
 		else if (strcmp(command, "env") == 0)
 		{
 			execute_env();
-		}
-		else if (strcmp(command, "cd") == 0)
-		{
-			/*Handle the "cd" command*/
-			cd_command(argv);
 		}
 		else
 		{
