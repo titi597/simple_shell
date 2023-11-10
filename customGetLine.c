@@ -9,7 +9,11 @@ static int buffer_size;
 
 ssize_t custom_getline(char **lineptr, size_t *n, FILE *stream);
 
-/* Helper function to read more characters into the buffer */
+/**
+ * read_into_buffer - Helper function to read more characters into the buffer
+ * @stream: variable which is pointer to an array
+ * Return: the size of buffer
+ */
 static int read_into_buffer(FILE *stream)
 {
 	buffer_size = read(fileno(stream), input_buffer, MAX_LINE_LENGTH);
@@ -17,7 +21,12 @@ static int read_into_buffer(FILE *stream)
 	return (buffer_size);
 }
 
-/* Helper function to find the end of a line within the buffer */
+/**
+ * find_end_of_line - Helper function to find the end of a line within
+ * the buffer done by Schiphtan and Thierry
+ * Dsecription: finding the end of line within buffer
+ * Return: -1 success
+ */
 static int find_end_of_line(void)
 {
 	int i;
@@ -32,7 +41,12 @@ static int find_end_of_line(void)
 	return (-1);  /* End of line not found in the current buffer */
 }
 
-/* Helper function to resize the line buffer */
+/**
+ * resize_line_buffer - Helper function to resize the line buffer
+ * @lineptr: pointer to an array
+ * @n: variable which is a pointer to an array
+ * @chars_read: an array  which reads
+ */
 static void resize_line_buffer(char **lineptr, size_t *n, ssize_t chars_read)
 {
 	if ((size_t)chars_read + buffer_pos >= *n)
@@ -41,6 +55,11 @@ static void resize_line_buffer(char **lineptr, size_t *n, ssize_t chars_read)
 		*lineptr = (char *)realloc(*lineptr, *n);
 	}
 }
+/**
+ * split_line - function for tokenizing without use of strtok
+ * @line: pointer to an array
+ * Return: number of tokens
+ */
 char **split_line(char *line)
 {
 	char **tokens = (char **)malloc(sizeof(char *));
@@ -87,7 +106,14 @@ char **split_line(char *line)
 	tokens[token_count] = NULL;
 	return (tokens);
 }
-
+/**
+ * custom_getline - function aiming creation of our own getline function
+ * done by Schiphtan and Thierry
+ * @lineptr: variable which is pointer
+ * @n: variable which is pointer also to an array
+ * @stream: pointer to an array
+ * Return: chars calculated
+ */
 ssize_t custom_getline(char **lineptr, size_t *n, FILE *stream)
 {
 	ssize_t chars_read = 0;
