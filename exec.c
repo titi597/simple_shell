@@ -82,6 +82,11 @@ void execmd(char **argv)
 		{
 			execute_env();
 		}
+		else if (strcmp(command, "cd") == 0)
+		{
+			/*Handle the "cd" command*/
+			cd_command(argv);
+		}
 		else
 		{
 			/* generate the path to this command before passing it to execve */
@@ -96,4 +101,3 @@ void execmd(char **argv)
 		}
 	}
 }
-
