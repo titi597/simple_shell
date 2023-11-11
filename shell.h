@@ -27,5 +27,5 @@ char *build_file_path(char *directory, char *command);
 int file_exists(char *file_path);
 char *strdup_printf(const char *format, ...);
 ssize_t custom_getline(char **lineptr, size_t *n, FILE *stream);
-
+int changeDirectory(const char *path);
 #endif
