@@ -1,6 +1,12 @@
 #include "shell.h"
 #include "env_command.h"
 
+/**
+ * execute_setenv - function that sets environment of the shell
+ * done by Schiphtan and Thierry
+ * @tokens: variable which is pointer to an array
+ * Return: 0 (success)
+ */
 int execute_setenv(char **tokens)
 {
 	if (tokens[1] && tokens[2])
@@ -17,7 +23,12 @@ int execute_setenv(char **tokens)
 	}
 	return (0);
 }
-
+/**
+ * execute_unsetenv - function that will unset envirnoment of the shell
+ * done by Schiphtan and Thierry
+ * @tokens: variable which is pointer to an array
+ * Return: 0 (success)
+ */
 int execute_unsetenv(char **tokens)
 {
 	if (tokens[1])
