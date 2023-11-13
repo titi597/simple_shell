@@ -20,7 +20,6 @@ int main(int ac, char **argv)
 	char *token;
 	char **tokens;
 	int i, j;
-	int directory_changed = 0;
 
 	/* declaring void variables */
 	(void)ac, (void)argv;
@@ -28,22 +27,13 @@ int main(int ac, char **argv)
 	while (1)
 	{
 		char cwd[MAX_PATH_LENGTH];
-		char *last_component = strrchr(cwd, '/');
-		char *basename_cwd = (last_component != NULL) ? last_component + 1 : cwd;
 
 		if (getcwd(cwd, sizeof(cwd)) == NULL)
 		{
 			perror("getcwd");
 			strcpy(cwd, "?");
 		}
-		if (directory_changed)
-		{
-			snprintf(prompt, sizeof(prompt), "(ts_shell) $ /%s# ", basename_cwd);
-		}
-		else
-		{
-			snprintf(prompt, sizeof(prompt), "(ts_shell) $ ");
-		}
+		snprintf(prompt, sizeof(prompt), "(ts_shell) $ %s# ", cwd);
 		printf("%s", prompt);
 		nchars_read = getline(&lineptr, &n, stdin);
 
@@ -83,7 +73,7 @@ int main(int ac, char **argv)
 
 		for (i = 0; token != NULL; i++)
 		{
-			tokens[i] = malloc(sizeof(char) * strlen(token));
+			tokens[i] = malloc(sizeof(char) * (strlen(token) + 1));
 			strcpy(tokens[i], token);
 			token = strtok(NULL, delim);
 		}
@@ -133,20 +123,13 @@ int main(int ac, char **argv)
 				}
 				if (getcwd(cwd, sizeof(cwd)) != NULL)
 				{
-					printf("Current directory: %s\n", basename_cwd);
+					printf("Current directory: %s\n", cwd);
 				}
 				else
 				{
 					perror("getcwd");
 				}
-				if (strcmp(basename_cwd, cwd) != 0)
-				{
-					directory_changed = 1;
-				}
-				else
-				{
-					directory_changed = 0;
-				}
+				continue;
 			}
 			else
 			{
@@ -165,4 +148,3 @@ int main(int ac, char **argv)
 	free(lineptr);
 	return (0);
 }
-
